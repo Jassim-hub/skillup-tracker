@@ -1,0 +1,21 @@
+/* @tailwind base; - Imports Tailwind's foundational styles */
+/* This replaces browser default styles (like margins, fonts, colors) */
+/* Provides consistent starting point across all browsers */
+/* Think of it as "resetting" your webpage to a clean slate */
+@tailwind base;
+
+/* @tailwind components; - Imports pre-built component styles */
+/* Provides reusable UI patterns like styled buttons, cards, forms */
+/* Currently mostly empty but allows for custom component classes */
+/* You can add your own components here later using @apply directive */
+@tailwind components;
+
+/* @tailwind utilities; - Imports thousands of utility classes */
+/* These are the main Tailwind classes you'll use in your HTML */
+/* Examples: text-blue-500, flex, p-4, hover:bg-red-200, etc. */
+/* This is where the magic happens - replaces most custom CSS */
+@tailwind utilities;
+
+/* These 3 lines together give you the complete Tailwind CSS framework */
+/* Order matters! Base → Components → Utilities (specificity increases) */
+/* Now you can style with classes like: <div class="bg-blue-500 text-white p-4"> */
