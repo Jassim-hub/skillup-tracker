@@ -44,19 +44,30 @@ const EyeOffIcon = () => (
   </svg>
 );
 
+// Validation schema
 const schema = yup.object().shape({
+  username: yup
+    .string()
+    .min(2, "Username must be at least 2 characters")
+    .max(20, "Username cannot exceed 20 characters")
+    .required("Username is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   password: yup
     .string()
     .min(6, "Minimum 6 characters")
     .required("Password is required"),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Please confirm your password"),
 });
 
-function Login() {
-  const { login } = useAuth(); // Get login function from context
+function Register() {
+  const { signup } = useAuth(); // Gets signup function from context
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -72,13 +83,13 @@ function Login() {
       setError("");
       setIsLoading(true);
 
-      // Login with Firebase
-      await login(data.email, data.password);
+      // Creates new user with Firebase
+      await signup(data.email, data.password, data.username);
 
-      // Redirect to dashboard on success
+      // Redirects to dashboard on success
       navigate("/dashboard");
     } catch (error) {
-      setError("Failed to log in: " + error.message);
+      setError("Failed to create account: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +98,7 @@ function Login() {
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        Login
+        Register
       </h1>
 
       {error && (
@@ -97,6 +108,20 @@ function Login() {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Username
+          </label>
+          <input
+            type="text"
+            {...register("username")}
+            className="mt-1 block w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-indigo-300"
+            disabled={isLoading}
+            placeholder="Enter your username"
+          />
+          <p className="text-red-500 text-sm">{errors.username?.message}</p>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Email
@@ -132,23 +157,49 @@ function Login() {
           </div>
           <p className="text-red-500 text-sm">{errors.password?.message}</p>
         </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Confirm Password
+          </label>
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              {...register("confirmPassword")}
+              className="mt-1 block w-full px-4 py-2 pr-10 border rounded-md focus:outline-none focus:ring focus:ring-indigo-300"
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+              disabled={isLoading}
+            >
+              {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
+          </div>
+          <p className="text-red-500 text-sm">
+            {errors.confirmPassword?.message}
+          </p>
+        </div>
+
         <button
           type="submit"
           disabled={isLoading}
           className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-md"
         >
-          {isLoading ? "Signing In..." : "Login"}
+          {isLoading ? "Creating Account..." : "Register"}
         </button>
       </form>
 
       <p className="mt-4 text-center text-sm text-gray-600">
-        Don't have an account?{" "}
-        <Link to="/register" className="text-indigo-600 hover:text-indigo-500">
-          Sign up here
+        Already have an account?{" "}
+        <Link to="/login" className="text-indigo-600 hover:text-indigo-500">
+          Sign in here
         </Link>
       </p>
     </div>
   );
 }
 
-export default Login;
+export default Register;
